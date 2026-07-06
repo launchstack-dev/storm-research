@@ -194,7 +194,7 @@ with the primary URL. Under 280 words.
 - **Reliability = evidence quality, not confidence.** Score on the source hierarchy: peer-reviewed causal > official policy/financial data > single commissioned survey > analogy > preprint.
 - **Persona quality cascades.** Use the Discovery model tier for Phase 1; do not cheap out. Never fable/Mythos.
 - **Cost.** `discover` mode spawns ~14-18 agents per run (1 discovery + 5 interviews + 4-6 verifiers); `market` mode ~9-11 (no discovery). That is expected. Do not fan out wider than five personas or one verifier per citation cluster.
-- **Design.** Clean white and professional (Montserrat / Roboto Mono, blue accent). Keep the template CSS verbatim. Do not swap in a different visual style.
+- **Design.** Editorial working-paper style (Fraunces display serif, Newsreader body, IBM Plex Mono for data, warm paper + pine accent). Keep the template `<style>` block intact and fill only the content tokens; do not swap in a different visual style. To rebrand, edit the `:root` custom properties.
 
 ## Appendix A: `market` preset personas
 

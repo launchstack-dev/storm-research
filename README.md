@@ -16,7 +16,7 @@ produces two artifacts: a structured **outline** (`.md`) and a verified, self-co
 Drop the folder into your Claude Code skills directory (personal or project):
 
 ```bash
-git clone https://github.com/orloworks/storm-research.git ~/.claude/skills/storm-research
+git clone https://github.com/launchstack-dev/storm-research.git ~/.claude/skills/storm-research
 ```
 
 Claude Code discovers it on the next session start. Works in any repo; also portable to
