@@ -84,8 +84,9 @@ STORM fidelity (perspective discovery + interview loop + outline-first output). 
 
 ## Design
 
-The report template is a self-contained editorial layout — constrained palette via CSS
-custom properties, Montserrat / Roboto / Roboto Mono type system, print + mobile styles.
-It is deliberately restrained (not a generic gradient/emoji "AI" look) and does not depend
-on any external design system. To restyle for a specific brand, edit the `:root` tokens
-and the `<style>` block; the skill body's Phase 5 only fills content tokens.
+The report template is an original editorial "working-paper" layout — Fraunces display
+serif, Newsreader body, IBM Plex Mono for data labels, a warm-paper palette with a pine
+accent, all via CSS custom properties, plus print + mobile styles. It is deliberately
+restrained (not a generic gradient/emoji "AI" look) and does not depend on any external
+design system. To restyle for a specific brand, edit the `:root` tokens and the `<style>`
+block; the skill body's Phase 5 only fills content tokens.
