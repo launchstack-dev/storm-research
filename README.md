@@ -6,9 +6,12 @@ produces two artifacts: a structured **outline** (`.md`) and a verified, self-co
 
 ## Files
 
-- `SKILL.md` — the 6-phase pipeline Claude executes. This is the skill.
-- `report-template.html` — the HTML report template the skill clones in Phase 5. Keep
+- `SKILL.md` — the pipeline Claude executes. This is the skill.
+- `report-template.html` — the HTML report template the skill clones in Phase 6. Keep
   the `<style>` block verbatim; fill the `{{TOKENS}}`.
+- `check_briefing.py` — optional standard-library checker the skill runs on the rendered
+  briefing (leftover tokens, unclosed tags, non-http links, citation numbering and
+  coverage, banner counts against the ledger). `python3 check_briefing.py <run folder>`.
 - `README.md` — this file (provenance + usage).
 
 ## Install
@@ -33,36 +36,42 @@ No slash command. Just say it in chat:
 Optional arguments (state them in the request):
 
 - `--panel discover|market`
-  - `discover` (**default**) — Claude derives 5 personas that fit *your* topic
-    (domain expert / practitioner / skeptic / newcomer / adjacent expert). Best for
-    decision-support and technical/product topics.
+  - `discover` (**default**) — Claude reads 3-5 overview sources on your topic and
+    derives 5 personas from them (domain expert / practitioner / skeptic / basic-facts
+    writer / adjacent expert). Best for decision-support and technical/product topics.
   - `market` — the fixed hype-check panel (practitioner / academic / skeptic /
     economist / historian). Best for "is `<trend>` overhyped / real / a bubble".
 - `--model-profile fast|balanced|max` — shifts model tiers together. Default `balanced`
-  (opus discovery · sonnet interviews · sonnet verification).
+  (opus discovery and review · sonnet interviews, moderator and verification).
+- `resume <run folder>` — continue a run that stopped. It restarts at the first missing or incomplete file, re-runs only the interviews that did not finish (keeping their valid turns), rebuilds any missing ledger rows, and reuses the run's recorded panel and profile unless you pass a flag.
 
 ## What you get
 
-1. `storm-reports/<slug>-outline.md` — the STORM outline (themes, inline contradictions,
-   open questions). **This is STORM's core deliverable** — the pre-writing structure is
-   where the method's measured edge comes from.
-2. `storm-reports/<slug>-briefing.html` — the polished, citation-verified report, opened
-   automatically.
+Each run gets its own folder, `storm-reports/<slug>-<date>/` relative to your current
+working directory (never overwritten; a same-day rerun gets `-2`):
 
-Both land in `storm-reports/` relative to your current working directory.
+1. `outline.md` — the STORM outline (themes, inline contradictions, open questions), every
+   claim tied to the ledger. **This is STORM's core deliverable** — the pre-writing
+   structure is where the method's measured edge comes from.
+2. `briefing.html` — the polished report with numbered, verified citations, opened (or
+   published as a private artifact where the session can).
+3. The audit trail: `personas.md`, `interviews/`, `moderator.md`, `ledger.md` (every claim
+   with its source, date, verbatim quote, grade and verdict), `verification.md`.
 
 ## When to use it (and when not)
 
 - **Use** for multi-stakeholder decisions, competitive/market analysis, due diligence,
   and any topic where viewpoint breadth and fact-checked claims matter.
-- **Don't use** for a simple factual lookup — it spawns ~14–18 agents in `discover`
-  mode (~9–11 in `market`) and takes minutes. That cost is the point; it's deliberate.
+- **Don't use** for a simple factual lookup — it spawns ~16–17 agents in `discover`
+  mode (~15–16 in `market`) plus retries, and takes a while. That cost is the point; it's deliberate.
 
 ## Cost & model notes
 
-- Reasoning-heavy phases (persona discovery, interviews) route to strong models;
-  citation verification routes to a lighter tier. See the routing table in `SKILL.md`.
-- Never uses a fable/Mythos tier (exhausts usage limits under fan-out).
+- Reasoning-heavy single agents (persona discovery, the independent reviewer) route to
+  the strongest tier; fan-outs (interviews, verifiers) to a lighter one. See the routing
+  table in `SKILL.md`.
+- A `fable` tier is used only under `max`, and only for single agents — never for a
+  fan-out (it exhausts usage limits).
 
 ## Provenance & attribution
 
@@ -71,8 +80,18 @@ with Large Language Models*, Shao, Jiang, Kanell, Xu, Khattab & Lam, **NAACL 202
 Stanford OVAL Lab. Reference implementation: `github.com/stanford-oval/storm`
 (`pip install knowledge-storm`); live demo: `storm-project.stanford.edu`.
 
-**What this skill adds beyond the original method:** an adversarial primary-source
-**verification layer** (confirm/correct/demote every citation), reliability scoring on an
+**What it keeps from STORM / Co-STORM** (checked against `knowledge_storm`): personas
+derived from related sources' structure plus a basic-facts writer, a turn-by-turn
+interview (each question written from the previous answers, before searching),
+multi-query grounded answers with untrustworthy sources excluded, a Co-STORM-style
+moderator that researches retrieved-but-unused evidence, a draft-then-refine outline,
+and sections written from their own evidence with numbered citations, lead last.
+
+**What this skill adds beyond the original method:** a claims ledger (source, date,
+verbatim quote, grade per claim), an adversarial primary-source **verification layer**
+over every cited claim (fetch failures are never called fabrication; every FALSE is
+re-checked by the main session), an independent reviewer, checkpointed and resumable
+runs, reliability scoring on an
 explicit evidence hierarchy, an honesty disclosure (the persona panel is author-built —
 agreement is a strong hypothesis, not field consensus), reader-role targeting, and a
 claim-safety guide. Those are not in the Stanford paper.

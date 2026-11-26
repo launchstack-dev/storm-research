@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  STORM RESEARCH REPORT TEMPLATE (v3 — clean-room, original design)
+  STORM RESEARCH REPORT TEMPLATE (v4 — clean-room, original design)
   Clone this file, fill every {{TOKEN}}, delete instructional comments, and repeat the
   marked blocks (finding entries, refs, action items, open questions) as needed.
   Keep the <style> block intact. Design = an editorial "working paper": warm paper,
@@ -60,7 +60,7 @@
   .meter { display: flex; align-items: center; gap: 14px; margin: 14px 0 14px 54px; }
   .meter-track { position: relative; flex: 1; max-width: 300px; height: 7px; background: var(--line); border-radius: 4px; overflow: hidden; }
   .meter-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; }
-  /* fill width is set inline: style="width:{{SCORE}}0%" (score 1-10 -> 10%-100%) */
+  /* fill width is set inline: style="width:<score>0%" (score 1-10 -> 10%-100%) */
   .meter-fill.strong { background: var(--accent); }
   .meter-fill.good { background: var(--ok); }
   .meter-fill.fair { background: var(--gold); }
@@ -158,9 +158,9 @@
 <div class="sheet">
 
   <header>
-    <div class="kicker">Storm Research &middot; v3 &middot; Verified</div>
+    <div class="kicker">Storm Research &middot; v4 &middot; Verified</div>
     <h1>{{TOPIC_TITLE}}</h1>
-    <p class="lede">{{LEDE: one line naming the five personas used (e.g. "A five-lens synthesis: {persona roles}") + "Every claim checked against its primary source before publication."}}</p>
+    <p class="lede">{{LEDE: one line naming the five personas used (e.g. "A five-lens synthesis: {persona roles}") + "Every cited claim checked against its primary source; the banner below gives the outcome."}}</p>
     <div class="dossier">
       <span><b>Date</b> &nbsp;{{DATE}}</span>
       <span><b>Method</b> &nbsp;{{METHOD_TAG: e.g. "5 topic-derived personas · interview loop" or "5-lens market panel · interview loop"}}</span>
@@ -168,7 +168,7 @@
     </div>
     <div class="stamp">
       <span class="seal">Verified</span>
-      <p>All {{N}} citations independently checked against primary sources on {{DATE}}. <b>{{X}} fabricated, {{Y}} corrected, {{Z}} demoted.</b> Confidence scores reflect post-verification evidence quality.</p>
+      <p>{{N}} claims independently checked against primary sources on {{DATE}}. <b>{{X}} fabricated, {{Y}} corrected, {{Z}} demoted, {{U}} unverified.</b> Confidence scores reflect post-verification evidence quality.</p>
     </div>
     <div class="primer">
       <h4>How to read this</h4>
@@ -236,7 +236,7 @@
   <section class="block">
     <div class="assume">
       <h3>The assumption this briefing rests on (and the missing 6th lens)</h3>
-      <p>{{What variables the five lenses froze. Name the 6th perspective that would change the conclusions, not just add nuance.}}</p>
+      <p>{{What variables the five lenses froze. Name the 6th perspective that would change the conclusions, with the moderator evidence behind it [n].}}</p>
       <p>{{The one omission that could invert the findings. Build with this caveat in mind.}}</p>
     </div>
   </section>
@@ -304,7 +304,7 @@
     <div class="num">§ 06</div>
     <h2>Method &amp; Lineage</h2>
     <div class="rule"></div>
-    <p class="method">{{METHOD_LINE: the panel mode used (topic-derived personas or the market preset), the interview depth (each persona: unique questions -> grounded answers -> one follow-up round), question count after dedup, and the citation-verification pass.}}</p>
+    <p class="method">{{METHOD_LINE: the panel mode used (source-grounded personas or the market preset), the interview depth (turns per persona, one question at a time, 2-3 queries per answer), the moderator pass on unused evidence, question and claim counts, the verification pass, and any persona that ended partial or missing.}}</p>
     <p class="method">Adapts Stanford STORM (Shao et al., <em>Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models</em>, NAACL 2024; stanford-oval/storm): perspective discovery + multi-perspective interview pre-writing, plus an adversarial primary-source verification layer not in the original method. The panel is author-constructed; agreement across personas is a strong hypothesis, not field consensus.</p>
   </section>
 
@@ -312,12 +312,12 @@
   <div class="refs">
     <h3>Evidence base &middot; verification status</h3>
     <ol>
-      <!-- REPEAT per citation. vstat class: ok (confirmed) | part (corrected/partial) | weak (demoted/preprint/contested). -->
-      <li><span class="vstat {{ok|part|weak}}">{{Confirmed|Corrected|Contested|Demoted}}</span>{{Full citation: authors, year, title, venue, the key figure, and any limit found during verification.}} <a href="{{PRIMARY_URL}}">{{domain}}</a></li>
+      <!-- REPEAT per [n], in citation order. vstat class: ok (confirmed) | part (corrected) | weak (demoted/contested/unverified). -->
+      <li><span class="vstat {{ok|part|weak}}">{{Confirmed|Corrected|Contested|Demoted|Unverified}}</span>{{Full citation: authors, year, title, venue, the key figure, and any limit found during verification.}} <a href="{{PRIMARY_URL}}">{{domain}}</a></li>
     </ol>
   </div>
 
-  <div class="colophon">Storm Research v3 &middot; STORM (NAACL 2024) adaptation &middot; {{N}}/{{N}} citations independently verified against primary sources, {{DATE}} &middot; {{X}} fabricated, {{Y}} corrected, {{Z}} demoted &middot; Reliability = evidence quality, not author confidence</div>
+  <div class="colophon">Storm Research v4 &middot; STORM (NAACL 2024) adaptation &middot; {{N}} claims checked against primary sources, {{DATE}} &middot; {{X}} fabricated, {{Y}} corrected, {{Z}} demoted, {{U}} unverified &middot; Reliability = evidence quality, not author confidence</div>
 
 </div>
 </body>
