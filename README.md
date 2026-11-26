@@ -9,6 +9,9 @@ produces two artifacts: a structured **outline** (`.md`) and a verified, self-co
 - `SKILL.md` — the pipeline Claude executes. This is the skill.
 - `report-template.html` — the HTML report template the skill clones in Phase 6. Keep
   the `<style>` block verbatim; fill the `{{TOKENS}}`.
+- `check_briefing.py` — optional standard-library checker the skill runs on the rendered
+  briefing (leftover tokens, unclosed tags, non-http links, citation numbering and
+  coverage, banner counts against the ledger). `python3 check_briefing.py <run folder>`.
 - `README.md` — this file (provenance + usage).
 
 ## Install
@@ -40,7 +43,7 @@ Optional arguments (state them in the request):
     economist / historian). Best for "is `<trend>` overhyped / real / a bubble".
 - `--model-profile fast|balanced|max` — shifts model tiers together. Default `balanced`
   (opus discovery and review · sonnet interviews, moderator and verification).
-- `resume <run folder>` — continue a run that stopped; it restarts at the first missing file.
+- `resume <run folder>` — continue a run that stopped. It restarts at the first missing or incomplete file, re-runs only the interviews that did not finish (keeping their valid turns), rebuilds any missing ledger rows, and reuses the run's recorded panel and profile unless you pass a flag.
 
 ## What you get
 

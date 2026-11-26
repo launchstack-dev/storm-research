@@ -22,7 +22,7 @@ STORM's founding insight is that the bottleneck is **pre-writing**, not writing.
 
 ## Portability
 
-Self-contained. It needs only built-in Claude Code tools (`Agent`, `Write`, `Read`, web search and fetch inside the agents) and `report-template.html` from this folder. No external scripts, APIs, paid services or other skills.
+Self-contained. It needs only built-in Claude Code tools (`Agent`, `Write`, `Read`, web search and fetch inside the agents) and `report-template.html` from this folder. No APIs, paid services or other skills. `check_briefing.py` in this folder is an optional standard-library checker for the rendered briefing; run it wherever `python3` exists.
 
 ## Arguments
 
@@ -61,7 +61,15 @@ verification.md   Phase 5  verdicts + review
 briefing.html     Phase 6  (deliverable)
 ```
 
-On `resume <folder>`, read the files that exist, then restart at the first phase whose file is missing or incomplete. An interview file counts as complete only if it has the full return block.
+`personas.md` starts with a header line recording the run's settings: `TOPIC_FRAME`, reader, panel mode and model profile.
+
+On `resume <folder>`:
+
+1. Take the topic, reader, panel and profile from the `personas.md` header. A flag passed with `resume` overrides that setting for the phases still to run, and the Method line says so.
+2. Find the first phase whose file is missing or incomplete, and restart there. An interview file is complete only if it has at least 3 turns and an `unusedFindings` line. Never trust a status line inside the file.
+3. In Phase 2, re-run only the missing or incomplete interviews. For an incomplete one, give the new agent its valid turns as "already done, keep" and ask only for the remaining turns, as in Failure handling.
+4. Reconcile the ledger before moving on. Every source in a complete interview or moderator file must have a ledger entry, because a stop can fall between writing a file and appending its claims. Add the missing entries. Where the same fact is already in the ledger, add the persona to that entry.
+5. Files from phases after the restart point are stale. Rebuild them, never reuse them.
 
 ## Claims ledger (`ledger.md`)
 
@@ -84,7 +92,7 @@ One block per claim keeps quotes free of escaping problems. The outline cites cl
 
 ## Source rules (give these to every research agent)
 
-- **Grade.** A = peer-reviewed or primary (the paper itself, statute, standard, official docs, filings, and a vendor's own docs, contract or price list for a claim about **what that vendor's product does, costs or allows**). B = official statistics or institutional data. C = a single survey, a commissioned study, or a vendor's claim about outcomes or the market ("50%+ recovery", "no extra work for you"). D = analogy, preprint, blog, press summary, or a vendor's claim about its competitors. If a source sits between two grades, take the lower one.
+- **Grade.** A = peer-reviewed or primary (the paper itself, statute, standard, official docs, filings, and a vendor's own docs, contract or price list for a claim about **what that vendor's product does, costs or allows**). A vendor's blog, guide or "resources" article about the market or general practice is not its docs: grade it C or D. B = official statistics or institutional data. C = a single survey, a commissioned study, or a vendor's claim about outcomes or the market ("50%+ recovery", "no extra work for you"). D = analogy, preprint, blog, press summary, or a vendor's claim about its competitors. If a source sits between two grades, take the lower one.
 - **Excluded:** content farms, SEO listicles, AI-generated aggregators, and any page that cites nothing. Vendor material counts only for claims about that vendor's own product.
 - **Freshness.** Record every source's date. On fast-moving topics, note sources older than about 3 years as stale.
 - **Independence.** Two sources are independent only if one does not simply cite the other.
@@ -144,7 +152,8 @@ Run an interview of 3-5 turns. Each turn:
  2. SEARCH: run 2-3 different queries for it. Fetch the pages you rely on.
  3. ANSWER: 2-4 sentences, every sentence supported by a fetched source. Load-bearing
     claims need 2 independent sources. Each source carries a verbatim quote (≤25 words)
-    copied from the page. If the sources do not answer it, say "cannot answer from
+    copied from the page, and that quote must itself support the claim it is attached to,
+    not just come from the same page. If the sources do not answer it, say "cannot answer from
     sources" and mark it so; never guess and never invent a URL.
 Stop early when the next question would not add new cited information. Then, if the interview has
 fewer than 5 turns, add 1 more turn on the thinnest or most surprising answer.
@@ -155,12 +164,21 @@ Return EXACTLY this block (under 1,600 words):
 persona: {name}
 coreClaim: {2-sentence position}
 theOneThing: {the single insight only this lens surfaces}
-turns[N]:
+turns:
   - q: {question}
     a: {answer}
     status: answered | thin | cannot-answer
-    sources[M]{claim,url,title,date,grade,quote}:   # claim = the answer sentence it supports; max 3 per turn
-unusedFindings[K]{fact,url,quote}:
+    sources:            # max 3 per turn; one field per line, never comma-joined
+      - claim: {the answer sentence this source supports}
+        url: {url}
+        title: {title}
+        date: {date or "undated"}
+        grade: A | B | C | D
+        quote: "{verbatim ≤25 words that supports the claim}"
+unusedFindings:         # write "unusedFindings: none" if there are none
+  - fact: {fact}
+    url: {url}
+    quote: "{verbatim, or 'not fetched'}"
 ```
 
 As each agent returns:
@@ -251,8 +269,8 @@ CLAIMS: {C{id}: claim | url | quote | grade} ...
 **5b. Apply the verdicts** (inline):
 
 - **Every FALSE verdict:** fetch the source yourself before applying it. If you find the support after all, mark the claim `confirmed` and record the disagreement in `verification.md`.
-- Update each claim's `status` and `note` in the ledger. Apply corrections in the ledger and the outline. FALSE claims come out of the outline. UNVERIFIED claims may stay only in the avoid band or the contested note, never as a finding's support.
-- **Demote** grade C/D claims and preprints that a finding would rest on, and any claim that is the only support for a finding; set `flags: demoted`. Set `flags: contested` on any conflict that stayed unresolved. Demoted and contested claims go in the "Contested signal" note or the caveat band.
+- Update each claim's `status` and `note` in the ledger. When a verifier names a stronger source, replace the claim's `source`, `quote` and `grade` with it and keep the old source in `note`. When a verifier's note contradicts the ledger (wrong authors, title or date), the claim is `corrected`, even if the verdict said CONFIRMED. Apply corrections in the ledger and the outline. FALSE claims come out of the outline. UNVERIFIED claims may stay only in the avoid band or the contested note, never as a finding's support.
+- **Demote** a claim that a finding or section rests on when it is grade D or a preprint, or grade C with no independent claim in the ledger that corroborates it. Set `flags: demoted`. A grade C claim that an independent claim corroborates stays as support, in the caveat band. Never demote a grade A or B claim just because it is the only support: the reviewer's single-source cap already handles that. Set `flags: contested` on any conflict that stayed unresolved. Demoted and contested claims go in the "Contested signal" note or the caveat band.
 - A verifier that fails gets one retry. If it still fails, its claims are `unverified`.
 
 **5c. Independent review (one fresh agent, Reviewer tier).** Give it `outline.md` and `ledger.md` only. It must not see your reasoning.
@@ -266,7 +284,11 @@ Review this research outline and its claims ledger as an adversarial peer review
 3. Bias check: which persona dominates the synthesis, and what is underweighted?
 4. Is the blind spot the right one? If you see a more important missing lens, name it.
 5. Overall grade A-F with one line of justification.
+6. Flag every outline sentence that says more than its cited ledger claims support.
+Do not browse the web.
 ```
+
+Fix every sentence the reviewer flags under item 6 in `outline.md` before rendering, and note the fixes in `verification.md`.
 
 Write the verdicts, the tally and the review to `verification.md`. The tally is counted from the ledger, never estimated:
 
@@ -291,9 +313,10 @@ Write the verdicts, the tally and the review to `verification.md`. The tally is 
    - **Method & Lineage:** the panel mode, the persona roles, the turns per persona, the question and claim counts, the moderator pass and the verification. State any persona that is missing or partial.
    - **References:** one item per `[n]`, labeled Demoted or Contested when that flag is set, otherwise by its status (Confirmed, Corrected, Unverified).
    - **Banner and colophon:** N, X, Y, Z and U from the tally.
-4. **Write the 60-second summary and the lede last**, from the finished body: the settled fact first, then the contested interpretation.
+4. **Write the 60-second summary and the lede last**, from the finished body: the settled fact first, then the contested interpretation. They sit above the body but are written after it, so they carry no `[n]` citations; numbering starts in the Findings.
 5. **Escape** every piece of text taken from sources (`&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`, `"` → `&quot;`). Only `http(s)` URLs may go in an `href`.
 6. Write the result to `briefing.html` in the run folder.
+7. **Check it.** If `python3` is available, run `python3 <this skill folder>/check_briefing.py <run folder>`. It fails on a leftover `{{` token, a tag that doesn't close, a non-http link, an `[n]` with no reference or a reference never cited, numbering out of first-appearance order, and banner counts that differ from the ledger. Fix every FAIL line and run it again until it prints OK. Without `python3`, check those six things by reading the file.
 
 ## Failure handling
 
