@@ -84,7 +84,7 @@ One block per claim keeps quotes free of escaping problems. The outline cites cl
 
 ## Source rules (give these to every research agent)
 
-- **Grade.** A = peer-reviewed or primary (the paper itself, statute, standard, official docs, filings). B = official statistics or institutional data. C = a single survey, a commissioned study, or a vendor's claim about itself. D = analogy, preprint, blog or press summary. If a source sits between two grades, take the lower one.
+- **Grade.** A = peer-reviewed or primary (the paper itself, statute, standard, official docs, filings, and a vendor's own docs, contract or price list for a claim about **what that vendor's product does, costs or allows**). B = official statistics or institutional data. C = a single survey, a commissioned study, or a vendor's claim about outcomes or the market ("50%+ recovery", "no extra work for you"). D = analogy, preprint, blog, press summary, or a vendor's claim about its competitors. If a source sits between two grades, take the lower one.
 - **Excluded:** content farms, SEO listicles, AI-generated aggregators, and any page that cites nothing. Vendor material counts only for claims about that vendor's own product.
 - **Freshness.** Record every source's date. On fast-moving topics, note sources older than about 3 years as stale.
 - **Independence.** Two sources are independent only if one does not simply cite the other.
@@ -173,13 +173,13 @@ When all five are in, merge duplicate questions (keep near-duplicates that probe
 
 ## Phase 3: Moderator pass, then the contradiction and gap map
 
-**3a. Moderator (one agent, Moderator tier).** This is the Co-STORM moderator. Its input is every persona's `unusedFindings`, every `thin` or `cannot-answer` question, and the five `coreClaim`s. Prompt:
+**3a. Moderator (one agent, Moderator tier).** This is the Co-STORM moderator. Its input is every persona's `unusedFindings`, every `thin` or `cannot-answer` question, the five `coreClaim`s, and **the full list of questions already asked**. Without that list it cannot avoid repeating them. Prompt:
 
 ```
 You are the moderator of a research panel on {TOPIC}. Below are facts the panel saw but
-never used, the questions it could not close, and each persona's position.
-Pick 2-3 NEW-ANGLE questions: on topic, but far from what was already asked and from the
-positions taken. Research each exactly like an interview turn (2-3 queries, fetched
+never used, the questions it could not close, each persona's position, and every question
+already asked. Pick 2-3 NEW-ANGLE questions: on topic, but not a rephrasing of any asked
+question and far from the positions taken. Research each exactly like an interview turn (2-3 queries, fetched
 sources, verbatim quotes, "cannot answer from sources" if so). {SOURCE RULES}
 Return: turns[N] in the interview format, plus blindSpot: {the lens the panel lacked and
 what your evidence suggests it would change}.
@@ -252,7 +252,7 @@ CLAIMS: {C{id}: claim | url | quote | grade} ...
 
 - **Every FALSE verdict:** fetch the source yourself before applying it. If you find the support after all, mark the claim `confirmed` and record the disagreement in `verification.md`.
 - Update each claim's `status` and `note` in the ledger. Apply corrections in the ledger and the outline. FALSE claims come out of the outline. UNVERIFIED claims may stay only in the avoid band or the contested note, never as a finding's support.
-- **Demote** grade C/D claims and preprints, and any claim that is the only support for a finding; set `flags: demoted`. Set `flags: contested` on any conflict that stayed unresolved. Demoted and contested claims go in the "Contested signal" note or the caveat band.
+- **Demote** grade C/D claims and preprints that a finding would rest on, and any claim that is the only support for a finding; set `flags: demoted`. Set `flags: contested` on any conflict that stayed unresolved. Demoted and contested claims go in the "Contested signal" note or the caveat band.
 - A verifier that fails gets one retry. If it still fails, its claims are `unverified`.
 
 **5c. Independent review (one fresh agent, Reviewer tier).** Give it `outline.md` and `ledger.md` only. It must not see your reasoning.
@@ -270,7 +270,7 @@ Review this research outline and its claims ledger as an adversarial peer review
 
 Write the verdicts, the tally and the review to `verification.md`. The tally is counted from the ledger, never estimated:
 
-- **N** = claims sent to verification (counted before FALSE claims are removed)
+- **N** = claims sent to verification (every claim the outline cites, counted before FALSE claims are removed; the report may cite fewer)
 - **X** = status `false` (fabricated)
 - **Y** = status `corrected`
 - **Z** = `flags: demoted`
